@@ -340,7 +340,7 @@ const Draft = () => {
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <div className={`flex flex-col gap-3 p-3 overflow-y-auto h-[80vh]`}>
+          <div className={`flex flex-col gap-3 p-3 overflow-y-auto pb-20`}>
             {
               Functions.map((item, index) => (
                 <div key={index}
