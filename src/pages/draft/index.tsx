@@ -2,6 +2,8 @@ import {Fragment, useState} from "react";
 import {Dialog, Listbox, Transition} from "@headlessui/react";
 import {CheckIcon, ChevronUpDownIcon} from '@heroicons/react/20/solid'
 import {XCircleIcon} from "@heroicons/react/24/solid";
+import {useAccount, useConnect, useDisconnect} from "wagmi";
+import { InjectedConnector } from 'wagmi/connectors/injected';
 
 type ExpressionArgument = {
   type: string
@@ -77,6 +79,12 @@ const tokens = [
 ]
 
 const Draft = () => {
+  const { address, isConnected } = useAccount()
+  const { connect } = useConnect({
+    // @ts-ignore
+    connector: new InjectedConnector(),
+  })
+  const { disconnect } = useDisconnect()
   const [showFunction, setShowFunction] = useState(true)
   const [showExecution, setExecution] = useState(false)
   const [expression, setExpression] = useState<ExpressionSubItem[]>([])
@@ -254,9 +262,17 @@ const Draft = () => {
         <div>
           NEST Craft
         </div>
-        <div>
-          Connect Wallet
-        </div>
+        {
+          isConnected ? (
+            <button onClick={() => disconnect()}>
+              Connected to {address?.slice(0, 6)}...{address?.slice(-4)}
+            </button>
+          ) : (
+            <button onClick={() => connect()}>
+              Connect Wallet
+            </button>
+          )
+        }
       </div>
       <div
         style={{
