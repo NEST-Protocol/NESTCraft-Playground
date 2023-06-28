@@ -323,7 +323,7 @@ const Draft = () => {
         </div>
       </div>
       <div
-        className={'absolute z-10 bottom-0 left-8 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold flex flex-col overflow-hidden'}>
+        className={'absolute z-10 bottom-0 left-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold flex flex-col overflow-hidden'}>
         <div
           className={'font-bold text-xl border-b px-3 h-12 flex items-center cursor-pointer hover:bg-neutral-50'}
           onClick={() => setShowFunction(!showFunction)}
@@ -375,7 +375,7 @@ const Draft = () => {
         </Transition>
       </div>
       <div
-        className={'absolute z-10 bottom-0 right-8 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
+        className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
           className={'font-bold text-xl border-b px-3 h-12 flex items-center cursor-pointer hover:bg-neutral-50'}
           onClick={() => setExecution(!showExecution)}
