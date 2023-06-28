@@ -1,12 +1,13 @@
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
-import { WagmiConfig, createConfig, mainnet } from 'wagmi'
+import { WagmiConfig, createConfig } from 'wagmi'
 import { createPublicClient, http } from 'viem'
+import {bscTestnet} from "wagmi/chains";
 
 const config = createConfig({
   autoConnect: true,
   publicClient: createPublicClient({
-    chain: mainnet,
+    chain: bscTestnet,
     transport: http()
   }),
 })
