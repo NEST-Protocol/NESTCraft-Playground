@@ -1,6 +1,7 @@
 import {Fragment, useState} from "react";
-import {Dialog, Listbox, Transition} from "@headlessui/react";
+import {Dialog, Listbox, Popover, Transition} from "@headlessui/react";
 import {CheckIcon, ChevronUpDownIcon} from '@heroicons/react/20/solid'
+import {XCircleIcon} from "@heroicons/react/24/solid";
 
 type ExpressionArgument = {
   type: string
@@ -16,12 +17,6 @@ type ExpressionSubItem = {
 }
 
 const Functions = [
-  {
-    'coefficient': 1,
-    'function': 'bn',
-    'argument': null,
-    'description': 'Get the current block number',
-  },
   {
     'coefficient': 1,
     'function': 'm1',
@@ -88,7 +83,7 @@ const Draft = () => {
   const [showFunction, setShowFunction] = useState(true)
   const [showExecution, setExecution] = useState(false)
   const [expression, setExpression] = useState<ExpressionSubItem[]>([])
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpenInsertFunction, setIsOpenInsertFunction] = useState(false)
   const [expressionSubItem, setExpressionSubItem] = useState<ExpressionSubItem>({
     coefficient: 1,
     function: '',
@@ -98,8 +93,8 @@ const Draft = () => {
 
   return (
     <main className={'h-screen w-screen flex flex-col relative'}>
-      <Transition appear show={isOpen} as={"div"} className={'w-full h-full absolute z-50'}>
-        <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
+      <Transition appear show={isOpenInsertFunction} as={"div"} className={'w-full h-full absolute z-50'}>
+        <Dialog as="div" className="relative z-50" onClose={() => setIsOpenInsertFunction(false)}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -238,7 +233,7 @@ const Draft = () => {
                           ...expression,
                           expressionSubItem,
                         ])
-                        setIsOpen(false)
+                        setIsOpenInsertFunction(false)
                       }}
                     >
                       Add
@@ -246,7 +241,7 @@ const Draft = () => {
                     <button
                       className="border px-3 py-2 rounded font-bold w-20 text-neutral-700"
                       onClick={() => {
-                        setIsOpen(false)
+                        setIsOpenInsertFunction(false)
                       }}
                     >
                       Cancel
@@ -281,19 +276,27 @@ const Draft = () => {
               .map((item, index) => {
                 return (
                   <div key={index} className={'flex items-center gap-2 text-5xl'}>
-                    {
-                      item.coefficient !== 1 && (
-                        <>
-                          <div className={'rounded-xl font-medium italic'}>
-                            {item.coefficient}
+                    <div className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
+                      <button
+                        onClick={() => {
+                          const newExpression = [...expression]
+                          newExpression.splice(index, 1)
+                          setExpression(newExpression)
+                        }}
+                        className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
+                        <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
+                      </button>
+                      {
+                        item.coefficient !== 1 && (
+                          <div>
+                            {item.coefficient} *
                           </div>
-                          <div className={'font-medium'}>*</div>
-                        </>
-                      )
-                    }
-                    <div className={'font-bold'}>{item.function}</div>
-                    <div className={'flex items-center font-medium italic'}>
-                      ({item.argument?.value})
+                        )
+                      }
+                      <div className={'italic'}>{item.function}</div>
+                      <div className={'text-3xl'}>
+                        ({item.argument?.value})
+                      </div>
                     </div>
                     {
                       index !== expression.length - 1 && (
@@ -343,7 +346,7 @@ const Draft = () => {
                     <button
                       onClick={() => {
                         setExpressionSubItem(item)
-                        setIsOpen(true)
+                        setIsOpenInsertFunction(true)
                       }}
                       className={'border bg-white hover:bg-neutral-100 p-1 rounded-full w-8 h-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
                       +
