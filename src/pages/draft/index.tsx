@@ -157,14 +157,14 @@ const Draft = () => {
                                 <div className="relative mt-1">
                                   <Listbox.Button
                                     className="relative w-full cursor-default rounded bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                                    <span className="block truncate">{expressionSubItem?.argument?.value}</span>
-                                    <span
+                                    <div className="block truncate">{expressionSubItem?.argument?.value}</div>
+                                    <div
                                       className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronUpDownIcon
-                className="h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
-            </span>
+                                      <ChevronUpDownIcon
+                                        className="h-5 w-5 text-gray-400"
+                                        aria-hidden="true"
+                                      />
+                                    </div>
                                   </Listbox.Button>
                                   <Transition
                                     as={Fragment}
@@ -186,18 +186,18 @@ const Draft = () => {
                                         >
                                           {({selected}) => (
                                             <>
-                      <span
-                        className={`block truncate ${
-                          selected ? 'font-medium' : 'font-normal'
-                        }`}
-                      >
-                        {token.value}
-                      </span>
+                                              <div
+                                                className={`block truncate ${
+                                                  selected ? 'font-medium' : 'font-normal'
+                                                }`}
+                                              >
+                                                {token.value}
+                                              </div>
                                               {selected ? (
-                                                <span
+                                                <div
                                                   className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                          <CheckIcon className="h-5 w-5" aria-hidden="true"/>
-                        </span>
+                                                  <CheckIcon className="h-5 w-5" aria-hidden="true"/>
+                                                </div>
                                               ) : null}
                                             </>
                                           )}
@@ -314,38 +314,49 @@ const Draft = () => {
         >
           Functions
         </div>
-        <div className={`flex flex-col gap-3 p-3 overflow-y-auto ${showFunction ? 'h-[80vh]' : 'hidden'}`}>
-          {
-            Functions.map((item, index) => (
-              <div key={index}
-                   className={'bg-white p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
-                <div className={'flex items-center gap-2 justify-between'}>
-                  <div className={'flex gap-1'}>
-                    {item.function}
-                    <div className={'flex text-neutral-700 font-light text-xs items-center gap-0.5'}>
-                      <div>(</div>
-                      <div key={index}>
-                        {item?.argument?.name}
+        <Transition
+          as={Fragment}
+          show={showFunction}
+          enter="ease-out duration-100"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="ease-in duration-100"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
+        >
+          <div className={`flex flex-col gap-3 p-3 overflow-y-auto h-[80vh]`}>
+            {
+              Functions.map((item, index) => (
+                <div key={index}
+                     className={'bg-white p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
+                  <div className={'flex items-center gap-2 justify-between'}>
+                    <div className={'flex gap-1'}>
+                      {item.function}
+                      <div className={'flex text-neutral-700 font-light text-xs items-center gap-0.5'}>
+                        <div>(</div>
+                        <div key={index}>
+                          {item?.argument?.name}
+                        </div>
+                        <div>)</div>
                       </div>
-                      <div>)</div>
                     </div>
+                    <button
+                      onClick={() => {
+                        setExpressionSubItem(item)
+                        setIsOpen(true)
+                      }}
+                      className={'border bg-white hover:bg-neutral-100 p-1 rounded-full w-8 h-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
+                      +
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      setExpressionSubItem(item)
-                      setIsOpen(true)
-                    }}
-                    className={'border bg-white hover:bg-neutral-100 p-1 rounded-full w-8 h-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
-                    +
-                  </button>
+                  <div className={'text-xs text-neutral-700 font-light'}>
+                    {item.description}
+                  </div>
                 </div>
-                <div className={'text-xs text-neutral-700 font-light'}>
-                  {item.description}
-                </div>
-              </div>
-            ))
-          }
-        </div>
+              ))
+            }
+          </div>
+        </Transition>
       </div>
       <div
         className={'absolute z-10 bottom-0 right-8 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
@@ -355,8 +366,19 @@ const Draft = () => {
         >
           Execution
         </div>
-        <div className={`flex flex-col gap-3 p-3 overflow-y-auto ${showExecution ? 'h-[50vh]' : 'hidden'}`}>
-        </div>
+        <Transition
+          as={Fragment}
+          show={showExecution}
+          enter="ease-out duration-100"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="ease-in duration-100"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
+        >
+          <div className={`flex flex-col gap-3 p-3 overflow-y-auto h-[50vh]`}>
+          </div>
+        </Transition>
       </div>
     </main>
   )
