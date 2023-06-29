@@ -141,9 +141,8 @@ const Draft = () => {
   })
   const {
     write: buy,
-    isLoading: buyLoading,
-    isSuccess: buySuccess,
-    error: buyError,
+    status: buyStatus,
+    reset: resetBuy,
   } = useContractWrite(buyPrepareConfig)
   const {config: approvePrepareConfig} = usePrepareContractWrite({
     address: NEST_ADDRESS[chain?.id ?? bscTestnet.id],
@@ -157,10 +156,26 @@ const Draft = () => {
   })
   const {
     write: approve,
-    isLoading: approveLoading,
-    isSuccess: approveSuccess,
-    error: approveError
+    status: approveStatus,
+    reset: resetApprove,
   } = useContractWrite(approvePrepareConfig)
+
+  useEffect(() => {
+    if (approveStatus === 'success' || approveStatus === 'error') {
+      // 3s后
+      setTimeout(() => {
+        resetApprove()
+      }, 3_000)
+    }
+  }, [approveStatus, resetApprove])
+
+  useEffect(() => {
+    if (buyStatus === 'success' || buyStatus === 'error') {
+      setTimeout(() => {
+        resetBuy()
+      }, 3_000)
+    }
+  }, [buyStatus, resetBuy])
 
   useEffect(() => {
     if (expression.length > 0) {
@@ -493,22 +508,22 @@ const Draft = () => {
             {
               // @ts-ignore
               allowanceData !== undefined && (BigInt(allowanceData || 0) < BigInt(estimateData || 0)) && (
-                <button onClick={approve}
+                <button onClick={approve} disabled={!approve}
                         className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}>
-                  {approveLoading && 'Approving...'}
-                  {!approveLoading && 'Approve'}
-                  {approveSuccess && ' Success'}
-                  {approveError && ' Error'}
+                  {approveStatus === 'loading' && 'Approving...'}
+                  {approveStatus === 'idle' && 'Approve'}
+                  {approveStatus === 'success' && 'Approve Success'}
+                  {approveStatus === 'error' && 'Approve Error'}
                 </button>
               )
             }
             <button
               className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}
-              disabled={!buy} onClick={() => buy?.()}>
-              {buyLoading && 'Buying...'}
-              {!buyLoading && 'Buy'}
-              {buySuccess && ' Success'}
-              {buyError && ' Error'}
+              disabled={!buy} onClick={buy}>
+              {buyStatus === 'loading' && 'Buying...'}
+              {buyStatus === 'idle' && 'Buy'}
+              {buyStatus === 'success' && 'Buy Success'}
+              {buyStatus === 'error' && 'Buy Error'}
             </button>
           </div>
         </Transition>
