@@ -2,10 +2,19 @@ import {Fragment, useEffect, useState} from "react";
 import {Dialog, Listbox, Transition} from "@headlessui/react";
 import {CheckIcon, ChevronUpDownIcon} from '@heroicons/react/20/solid'
 import {XCircleIcon} from "@heroicons/react/24/solid";
-import {useAccount, useConnect, useContractRead, useDisconnect, useNetwork} from "wagmi";
+import {
+  erc20ABI,
+  useAccount,
+  useConnect,
+  useContractRead,
+  useContractWrite,
+  useDisconnect,
+  useNetwork,
+  usePrepareContractWrite
+} from "wagmi";
 import {InjectedConnector} from 'wagmi/connectors/injected';
 import {NEST_CRAFT_ABI} from "@/constant/abi";
-import {NEST_CRAFT_ADDRESS} from "@/constant/address";
+import {NEST_ADDRESS, NEST_CRAFT_ADDRESS} from "@/constant/address";
 import {bscTestnet} from "wagmi/chains";
 
 type ExpressionArgument = {
@@ -88,7 +97,7 @@ const Draft = () => {
   })
   const {disconnect} = useDisconnect()
   const [showFunction, setShowFunction] = useState(true)
-  const [showExecution, setExecution] = useState(false)
+  const [showExecution, setExecution] = useState(true)
   const [expression, setExpression] = useState<ExpressionSubItem[]>([])
   const [isOpenInsertFunction, setIsOpenInsertFunction] = useState(false)
   const [expressionSubItem, setExpressionSubItem] = useState<ExpressionSubItem>({
@@ -101,14 +110,57 @@ const Draft = () => {
   const [expr, setExpr] = useState<string | undefined>(undefined)
   const {data, isLoading, refetch, error} = useContractRead({
     abi: NEST_CRAFT_ABI,
-    chainId: chain?.id ?? bscTestnet.id,
     address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
-    functionName: 'estimate',
     args: [
       expr,
     ],
+    chainId: chain?.id ?? bscTestnet.id,
+    functionName: 'estimate',
+    cacheOnBlock: true,
     watch: true,
   })
+  const {data: allowanceData} = useContractRead({
+    abi: erc20ABI,
+    address: NEST_ADDRESS[chain?.id ?? bscTestnet.id],
+    functionName: 'allowance',
+    args: [
+      address!,
+      NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+    ],
+    cacheOnBlock: true,
+    watch: true,
+  })
+  const {config: buyPrepareConfig} = usePrepareContractWrite({
+    address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+    abi: NEST_CRAFT_ABI,
+    functionName: 'buy',
+    args: [
+      expr,
+    ],
+    chainId: chain?.id ?? bscTestnet.id,
+  })
+  const {
+    write: buy,
+    isLoading: buyLoading,
+    isSuccess: buySuccess,
+    error: buyError,
+  } = useContractWrite(buyPrepareConfig)
+  const {config: approvePrepareConfig} = usePrepareContractWrite({
+    address: NEST_ADDRESS[chain?.id ?? bscTestnet.id],
+    abi: erc20ABI,
+    functionName: 'approve',
+    args: [
+      NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+      BigInt(10000000000000000)
+    ],
+    chainId: chain?.id ?? bscTestnet.id,
+  })
+  const {
+    write: approve,
+    isLoading: approveLoading,
+    isSuccess: approveSuccess,
+    error: approveError
+  } = useContractWrite(approvePrepareConfig)
 
   useEffect(() => {
     if (expression.length > 0) {
@@ -415,17 +467,18 @@ const Draft = () => {
           onClick={() => setExecution(!showExecution)}
         >
           <div>
-            Execution:
+            Estimate
           </div>
-          <div>
-            {data ? (parseInt(BigInt(data).toString()) / 1e18).toLocaleString( 'en-US', {
+          <div className={'text-neutral-700 font-light'}>
+            {/*@ts-ignore*/}
+            {data ? (parseInt(BigInt(data).toString()) / 1e18).toLocaleString('en-US', {
               maximumFractionDigits: 6
             }) : ''}
           </div>
         </div>
         <Transition
           as={Fragment}
-          show={showExecution}
+          show={expression.length > 0 && showExecution}
           enter="ease-out duration-100"
           enterFrom="opacity-0 scale-95"
           enterTo="opacity-100 scale-100"
@@ -433,10 +486,29 @@ const Draft = () => {
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <div className={`flex flex-col gap-3 p-3 overflow-y-auto h-[50vh]`}>
-            <div className={'italic font-light text-xs'}>
-              {expr}
+          <div className={`flex flex-col gap-3 p-3 overflow-y-auto overflow-x-hidden`}>
+            <div className={'italic font-light text-xs w-full break-all'}>
+              expr: {expr}
             </div>
+            {
+              allowanceData !== undefined && BigInt(allowanceData) === BigInt(0) && (
+                <button onClick={approve}
+                        className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}>
+                  {approveLoading && 'Approving...'}
+                  {!approveLoading && 'Approve'}
+                  {approveSuccess && ' Success'}
+                  {approveError && ' Error'}
+                </button>
+              )
+            }
+            <button
+              className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}
+              disabled={!buy} onClick={() => buy?.()}>
+              {buyLoading && 'Buying...'}
+              {!buyLoading && 'Buy'}
+              {buySuccess && ' Success'}
+              {buyError && ' Error'}
+            </button>
           </div>
         </Transition>
       </div>
