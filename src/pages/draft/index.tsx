@@ -332,10 +332,22 @@ const Draft = () => {
                     <button
                       className="border px-3 py-2 rounded font-bold w-20 bg-neutral-700 text-white"
                       onClick={() => {
-                        setExpression([
-                          ...expression,
-                          expressionSubItem,
-                        ])
+                        const index = expression.findIndex(item => item.function === expressionSubItem.function && item.argument?.name === expressionSubItem.argument?.name)
+                        if (index >= 0) {
+                          setExpression([
+                            ...expression.slice(0, index),
+                            {
+                              ...expression[index],
+                              coefficient: expressionSubItem.coefficient + expression[index].coefficient,
+                            },
+                            ...expression.slice(index + 1, expression.length),
+                          ])
+                        } else {
+                          setExpression([
+                            ...expression,
+                            expressionSubItem,
+                          ])
+                        }
                         setIsOpenInsertFunction(false)
                       }}
                     >
