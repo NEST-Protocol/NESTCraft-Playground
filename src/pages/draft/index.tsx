@@ -17,6 +17,7 @@ import {NEST_CRAFT_ABI} from "@/constant/abi";
 import {NEST_ADDRESS, NEST_CRAFT_ADDRESS} from "@/constant/address";
 import {bscTestnet} from "wagmi/chains";
 import {ExpressionSubItem, Functions} from "@/constant/functions";
+import { motion } from "framer-motion";
 
 const tokens = [
   {name: 'ETH', value: 0},
@@ -94,7 +95,6 @@ const Draft = () => {
     status: approveStatus,
     reset: resetApprove,
   } = useContractWrite(approvePrepareConfig)
-  const [position, setPosition] = useState<{ x: number; y: number }>({x: 0, y: 0})
 
   useEffect(() => {
     if (approveStatus === 'success' || approveStatus === 'error') {
@@ -453,48 +453,52 @@ const Draft = () => {
           backgroundSize: '40px 40px',
         }}
         className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold text-5xl overflow-auto'}>
-        <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center'}>
-          <div>
-            =
-          </div>
-          {
-            expression
-              .map((item, index) => {
-                return (
-                  <div key={index} className={'flex items-center gap-2 text-5xl'}>
-                    <div
-                      className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
-                      <button
-                        onClick={() => {
-                          const newExpression = [...expression]
-                          newExpression.splice(index, 1)
-                          setExpression(newExpression)
-                        }}
-                        className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
-                        <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
-                      </button>
+        <motion.div
+          drag
+        >
+          <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-pointer hover:shadow-lg'}>
+            <div>
+              =
+            </div>
+            {
+              expression
+                .map((item, index) => {
+                  return (
+                    <div key={index} className={'flex items-center gap-2 text-5xl'}>
+                      <div
+                        className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
+                        <button
+                          onClick={() => {
+                            const newExpression = [...expression]
+                            newExpression.splice(index, 1)
+                            setExpression(newExpression)
+                          }}
+                          className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
+                          <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
+                        </button>
+                        {
+                          item.coefficient !== 1 && (
+                            <div>
+                              {item.coefficient} *
+                            </div>
+                          )
+                        }
+                        <div className={'italic'}>{item.function}</div>
+                        <div className={'text-3xl'}>
+                          ({item.argument?.name})
+                        </div>
+                      </div>
                       {
-                        item.coefficient !== 1 && (
-                          <div>
-                            {item.coefficient} *
-                          </div>
+                        index !== expression.length - 1 && (
+                          <div>+</div>
                         )
                       }
-                      <div className={'italic'}>{item.function}</div>
-                      <div className={'text-3xl'}>
-                        ({item.argument?.name})
-                      </div>
                     </div>
-                    {
-                      index !== expression.length - 1 && (
-                        <div>+</div>
-                      )
-                    }
-                  </div>
-                )
-              })
-          }
-        </div>
+                  )
+                })
+            }
+          </div>
+        </motion.div>
       </div>
     )
   }
