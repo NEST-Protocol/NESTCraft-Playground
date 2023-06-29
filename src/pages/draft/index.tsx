@@ -157,6 +157,7 @@ const Draft = () => {
     status: approveStatus,
     reset: resetApprove,
   } = useContractWrite(approvePrepareConfig)
+  const [position, setPosition] = useState<{ x: number; y: number }>({x: 0, y: 0})
 
   useEffect(() => {
     if (approveStatus === 'success' || approveStatus === 'error') {
@@ -193,8 +194,8 @@ const Draft = () => {
     }
   }, [expression])
 
-  return (
-    <main className={'h-screen w-screen flex flex-col relative'}>
+  const InsertModal = () => {
+    return (
       <Transition appear show={isOpenInsertFunction} as={"div"} className={'w-full h-full absolute z-50'}>
         <Dialog as="div" className="relative z-50" onClose={() => setIsOpenInsertFunction(false)}>
           <Transition.Child
@@ -368,71 +369,11 @@ const Draft = () => {
           </div>
         </Dialog>
       </Transition>
-      <div className={'h-16 flex items-center justify-between px-4 font-bold border-b'}>
-        <div>
-          NEST Craft
-        </div>
-        {
-          isConnected ? (
-            <button onClick={() => disconnect()}>
-              Connected to {address?.slice(0, 6)}...{address?.slice(-4)}
-            </button>
-          ) : (
-            <button onClick={() => connect()}>
-              Connect Wallet
-            </button>
-          )
-        }
-      </div>
-      <div
-        style={{
-          backgroundImage: 'radial-gradient(#bbb 5%, transparent 0)',
-          backgroundSize: '40px 40px',
-        }}
-        className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold text-5xl overflow-auto'}>
-        <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center'}>
-          <div>
-            =
-          </div>
-          {
-            expression
-              .map((item, index) => {
-                return (
-                  <div key={index} className={'flex items-center gap-2 text-5xl'}>
-                    <div
-                      className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
-                      <button
-                        onClick={() => {
-                          const newExpression = [...expression]
-                          newExpression.splice(index, 1)
-                          setExpression(newExpression)
-                        }}
-                        className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
-                        <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
-                      </button>
-                      {
-                        item.coefficient !== 1 && (
-                          <div>
-                            {item.coefficient} *
-                          </div>
-                        )
-                      }
-                      <div className={'italic'}>{item.function}</div>
-                      <div className={'text-3xl'}>
-                        ({item.argument?.name})
-                      </div>
-                    </div>
-                    {
-                      index !== expression.length - 1 && (
-                        <div>+</div>
-                      )
-                    }
-                  </div>
-                )
-              })
-          }
-        </div>
-      </div>
+    )
+  }
+
+  const MFunctionModal = () => {
+    return (
       <div
         className={'absolute z-10 bottom-0 left-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold flex flex-col overflow-hidden'}>
         <div
@@ -485,6 +426,11 @@ const Draft = () => {
           </div>
         </Transition>
       </div>
+    )
+  }
+
+  const EstimateModal = () => {
+    return (
       <div
         className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
@@ -538,6 +484,91 @@ const Draft = () => {
           </div>
         </Transition>
       </div>
+    )
+  }
+
+  const Header = () => {
+    return (
+      <div className={'h-16 flex items-center justify-between px-4 font-bold border-b'}>
+        <div>
+          NEST Craft
+        </div>
+        {
+          isConnected ? (
+            <button onClick={() => disconnect()}>
+              Connected to {address?.slice(0, 6)}...{address?.slice(-4)}
+            </button>
+          ) : (
+            <button onClick={() => connect()}>
+              Connect Wallet
+            </button>
+          )
+        }
+      </div>
+    )
+  }
+
+  const Content = () => {
+    return (
+      <div
+        style={{
+          backgroundImage: 'radial-gradient(#bbb 5%, transparent 0)',
+          backgroundSize: '40px 40px',
+        }}
+        className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold text-5xl overflow-auto'}>
+        <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center'}>
+          <div>
+            =
+          </div>
+          {
+            expression
+              .map((item, index) => {
+                return (
+                  <div key={index} className={'flex items-center gap-2 text-5xl'}>
+                    <div
+                      className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
+                      <button
+                        onClick={() => {
+                          const newExpression = [...expression]
+                          newExpression.splice(index, 1)
+                          setExpression(newExpression)
+                        }}
+                        className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
+                        <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
+                      </button>
+                      {
+                        item.coefficient !== 1 && (
+                          <div>
+                            {item.coefficient} *
+                          </div>
+                        )
+                      }
+                      <div className={'italic'}>{item.function}</div>
+                      <div className={'text-3xl'}>
+                        ({item.argument?.name})
+                      </div>
+                    </div>
+                    {
+                      index !== expression.length - 1 && (
+                        <div>+</div>
+                      )
+                    }
+                  </div>
+                )
+              })
+          }
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <main className={'h-screen w-screen flex flex-col relative'}>
+      {InsertModal()}
+      {Header()}
+      {Content()}
+      {MFunctionModal()}
+      {EstimateModal()}
     </main>
   )
 }
