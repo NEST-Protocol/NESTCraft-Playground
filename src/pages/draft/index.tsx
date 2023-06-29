@@ -492,7 +492,7 @@ const Draft = () => {
             </div>
             {
               // @ts-ignore
-              allowanceData !== undefined && BigInt(allowanceData || 0) < BigInt(estimateData || 0) && (
+              allowanceData !== undefined && (BigInt(allowanceData || 0) <= BigInt(estimateData || 0)) && (
                 <button onClick={approve}
                         className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}>
                   {approveLoading && 'Approving...'}
