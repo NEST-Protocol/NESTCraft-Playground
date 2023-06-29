@@ -452,22 +452,19 @@ const Draft = () => {
           backgroundImage: 'radial-gradient(#bbb 5%, transparent 0)',
           backgroundSize: '40px 40px',
         }}
-        className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold text-5xl overflow-auto'}>
+        className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold sm:text-base md:text-xl lg:text-3xl xl:text-5xl overflow-hidden'}>
         <motion.div
           drag
         >
-          <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-pointer hover:shadow-lg'}>
-            <div>
-              =
-            </div>
+          <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-move hover:shadow-lg max-w-full'}>
             {
               expression
                 .map((item, index) => {
                   return (
-                    <div key={index} className={'flex items-center gap-2 text-5xl'}>
-                      <div
-                        className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
-                        <button
+                    <span key={index} className={'flex items-center gap-2'}>
+                      <span
+                        className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer whitespace-nowrap'}>
+                        <div
                           onClick={() => {
                             const newExpression = [...expression]
                             newExpression.splice(index, 1)
@@ -475,25 +472,25 @@ const Draft = () => {
                           }}
                           className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
                           <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
-                        </button>
+                        </div>
                         {
                           item.coefficient !== 1 && (
-                            <div>
+                            <span>
                               {item.coefficient} *
-                            </div>
+                            </span>
                           )
                         }
-                        <div className={'italic'}>{item.function}</div>
-                        <div className={'text-3xl'}>
+                        <span className={'italic'}>{item.function}</span>
+                        <span className={'sm:text-sm md:text-lg lg:text-xl xl:text-3xl'}>
                           ({item.argument?.name})
-                        </div>
-                      </div>
+                        </span>
+                      </span>
                       {
                         index !== expression.length - 1 && (
-                          <div>+</div>
+                          <span>+</span>
                         )
                       }
-                    </div>
+                    </span>
                   )
                 })
             }
