@@ -17,20 +17,18 @@ import {NEST_CRAFT_ABI} from "@/constant/abi";
 import {NEST_ADDRESS, NEST_CRAFT_ADDRESS} from "@/constant/address";
 import {bscTestnet} from "wagmi/chains";
 
-type ExpressionArgument = {
-  type: string
-  name: string
-  value: string | number | undefined
-}
-
 type ExpressionSubItem = {
   coefficient: number
   function: string
   description: string
-  argument: ExpressionArgument | null
+  argument: {
+    type: string
+    name: string
+    value: string | number | undefined
+  } | null
 }
 
-const Functions = [
+const Functions: ExpressionSubItem[] = [
   {
     coefficient: 1,
     function: 'm1',
@@ -116,7 +114,7 @@ const Draft = () => {
     ],
     chainId: chain?.id ?? bscTestnet.id,
     functionName: 'estimate',
-    cacheTime: 5_000,
+    cacheTime: 3_000,
     watch: true,
   })
   const {data: allowanceData} = useContractRead({
@@ -127,7 +125,7 @@ const Draft = () => {
       address!,
       NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
     ],
-    cacheTime: 5_000,
+    cacheTime: 3_000,
     watch: true,
   })
   const {config: buyPrepareConfig} = usePrepareContractWrite({
@@ -429,7 +427,7 @@ const Draft = () => {
           className={'font-bold text-xl border-b px-3 h-12 flex items-center cursor-pointer hover:bg-neutral-50'}
           onClick={() => setShowFunction(!showFunction)}
         >
-          Functions
+          Martingale Functions
         </div>
         <Transition
           as={Fragment}
