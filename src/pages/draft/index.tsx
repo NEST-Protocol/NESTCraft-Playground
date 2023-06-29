@@ -1,9 +1,12 @@
-import {Fragment, useState} from "react";
+import {Fragment, useEffect, useState} from "react";
 import {Dialog, Listbox, Transition} from "@headlessui/react";
 import {CheckIcon, ChevronUpDownIcon} from '@heroicons/react/20/solid'
 import {XCircleIcon} from "@heroicons/react/24/solid";
-import {useAccount, useConnect, useDisconnect} from "wagmi";
-import { InjectedConnector } from 'wagmi/connectors/injected';
+import {useAccount, useConnect, useContractRead, useDisconnect, useNetwork} from "wagmi";
+import {InjectedConnector} from 'wagmi/connectors/injected';
+import {NEST_CRAFT_ABI} from "@/constant/abi";
+import {NEST_CRAFT_ADDRESS} from "@/constant/address";
+import {bscTestnet} from "wagmi/chains";
 
 type ExpressionArgument = {
   type: string
@@ -24,9 +27,8 @@ const Functions = [
     function: 'm1',
     argument: {
       type: 'token',
-      name: 'token',
-      value: 'ETH',
-
+      name: 'ETH',
+      value: 0,
     },
     description: 'Linear function: m1 = a * x + c',
   },
@@ -35,8 +37,8 @@ const Functions = [
     function: 'm2',
     argument: {
       type: 'token',
-      name: 'token',
-      value: 'ETH',
+      name: 'ETH',
+      value: 0,
     },
     description: 'Square function, m2 = a * x ** 2 + c',
   },
@@ -45,8 +47,8 @@ const Functions = [
     function: 'm3',
     argument: {
       type: 'token',
-      name: 'token',
-      value: 'ETH',
+      name: 'ETH',
+      value: 0,
     },
     description: 'Reciprocal function, m3 = a / x + c',
   },
@@ -55,8 +57,8 @@ const Functions = [
     function: 'm4',
     argument: {
       type: 'token',
-      name: 'token',
-      value: 'ETH',
+      name: 'ETH',
+      value: 0,
     },
     description: 'Square root function, m4 = a * x ** 0.5 + c',
   },
@@ -65,26 +67,26 @@ const Functions = [
     function: 'm5',
     argument: {
       type: 'token',
-      name: 'token',
-      value: 'ETH',
+      name: 'ETH',
+      value: 0,
     },
     description: 'logarithmic function, m5 = a * ln(x) + c',
   },
 ]
 
 const tokens = [
-  {value: 'ETH', channelId: 0},
-  {value: 'BTC', channelId: 1},
-  {value: 'BNB', channelId: 2},
+  {name: 'ETH', value: 0},
+  {name: 'BTC', value: 1},
+  {name: 'BNB', value: 2},
 ]
 
 const Draft = () => {
-  const { address, isConnected } = useAccount()
-  const { connect } = useConnect({
+  const {address, isConnected} = useAccount()
+  const {connect} = useConnect({
     // @ts-ignore
     connector: new InjectedConnector(),
   })
-  const { disconnect } = useDisconnect()
+  const {disconnect} = useDisconnect()
   const [showFunction, setShowFunction] = useState(true)
   const [showExecution, setExecution] = useState(false)
   const [expression, setExpression] = useState<ExpressionSubItem[]>([])
@@ -95,6 +97,36 @@ const Draft = () => {
     description: '',
     argument: null
   })
+  const {chain} = useNetwork()
+  const [expr, setExpr] = useState<string | undefined>(undefined)
+  const {data, isLoading, refetch, error} = useContractRead({
+    abi: NEST_CRAFT_ABI,
+    chainId: chain?.id ?? bscTestnet.id,
+    address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+    functionName: 'estimate',
+    args: [
+      expr,
+    ],
+    watch: true,
+  })
+
+  useEffect(() => {
+    if (expression.length > 0) {
+      // 遍历所有的函数，组合成表达式
+      let expr = ''
+      expression.forEach((item, index) => {
+        if (index === 0) {
+          expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
+        } else {
+          expr += `+${item.coefficient}*${item.function}(${item.argument?.value})`
+        }
+      })
+      expr = expr.replace(/1\*/g, '')
+      setExpr(expr)
+    } else {
+      setExpr(undefined)
+    }
+  }, [expression])
 
   return (
     <main className={'h-screen w-screen flex flex-col relative'}>
@@ -150,14 +182,15 @@ const Draft = () => {
                                   // @ts-ignore
                                   argument: {
                                     ...expressionSubItem.argument,
-                                    value: e.value
+                                    name: e.name,
+                                    value: e.value,
                                   }
                                 })
                               }}>
                                 <div className="relative mt-1">
                                   <Listbox.Button
                                     className="relative w-full cursor-default rounded bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                                    <div className="block truncate">{expressionSubItem?.argument?.value}</div>
+                                    <div className="block truncate">{expressionSubItem?.argument?.name}</div>
                                     <div
                                       className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                       <ChevronUpDownIcon
@@ -191,7 +224,7 @@ const Draft = () => {
                                                   selected ? 'font-medium' : 'font-normal'
                                                 }`}
                                               >
-                                                {token.value}
+                                                {token.name}
                                               </div>
                                               {selected ? (
                                                 <div
@@ -289,7 +322,8 @@ const Draft = () => {
               .map((item, index) => {
                 return (
                   <div key={index} className={'flex items-center gap-2 text-5xl'}>
-                    <div className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
+                    <div
+                      className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer'}>
                       <button
                         onClick={() => {
                           const newExpression = [...expression]
@@ -308,7 +342,7 @@ const Draft = () => {
                       }
                       <div className={'italic'}>{item.function}</div>
                       <div className={'text-3xl'}>
-                        ({item.argument?.value})
+                        ({item.argument?.name})
                       </div>
                     </div>
                     {
@@ -377,10 +411,15 @@ const Draft = () => {
       <div
         className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
-          className={'font-bold text-xl border-b px-3 h-12 flex items-center cursor-pointer hover:bg-neutral-50'}
+          className={'font-bold text-xl border-b px-3 py-2 min-h-12 flex items-center cursor-pointer hover:bg-neutral-50'}
           onClick={() => setExecution(!showExecution)}
         >
-          Execution
+          Execution:
+          <div>
+            {data ? (parseInt(BigInt(data).toString()) / 1e18).toLocaleString( 'en-US', {
+              maximumFractionDigits: 6
+            }) : ''}
+          </div>
         </div>
         <Transition
           as={Fragment}
@@ -393,6 +432,9 @@ const Draft = () => {
           leaveTo="opacity-0 scale-95"
         >
           <div className={`flex flex-col gap-3 p-3 overflow-y-auto h-[50vh]`}>
+            <div className={'italic font-light text-xs'}>
+              {expr}
+            </div>
           </div>
         </Transition>
       </div>
