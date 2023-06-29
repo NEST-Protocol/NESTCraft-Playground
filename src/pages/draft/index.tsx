@@ -108,7 +108,7 @@ const Draft = () => {
   })
   const {chain} = useNetwork()
   const [expr, setExpr] = useState<string | undefined>(undefined)
-  const {data, isLoading, refetch, error} = useContractRead({
+  const {data: estimateData, isLoading: isEstimateLoading, error} = useContractRead({
     abi: NEST_CRAFT_ABI,
     address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
     args: [
@@ -116,7 +116,7 @@ const Draft = () => {
     ],
     chainId: chain?.id ?? bscTestnet.id,
     functionName: 'estimate',
-    cacheOnBlock: true,
+    cacheTime: 5_000,
     watch: true,
   })
   const {data: allowanceData} = useContractRead({
@@ -471,9 +471,9 @@ const Draft = () => {
           </div>
           <div className={'text-neutral-700 font-light'}>
             {/*@ts-ignore*/}
-            {data ? (parseInt(BigInt(data).toString()) / 1e18).toLocaleString('en-US', {
+            {estimateData ? `${(parseInt(BigInt(estimateData).toString()) / 1e18).toLocaleString('en-US', {
               maximumFractionDigits: 6
-            }) : ''}
+            })} NEST` : ''}
           </div>
         </div>
         <Transition
@@ -487,11 +487,12 @@ const Draft = () => {
           leaveTo="opacity-0 scale-95"
         >
           <div className={`flex flex-col gap-3 p-3 overflow-y-auto overflow-x-hidden`}>
-            <div className={'italic font-light text-xs w-full break-all'}>
+            <div className={'italic font-light text-xs w-full break-all underline'}>
               expr: {expr}
             </div>
             {
-              allowanceData !== undefined && BigInt(allowanceData) === BigInt(0) && (
+              // @ts-ignore
+              allowanceData !== undefined && BigInt(allowanceData || 0) < BigInt(estimateData || 0) && (
                 <button onClick={approve}
                         className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}>
                   {approveLoading && 'Approving...'}
