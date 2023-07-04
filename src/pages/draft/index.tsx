@@ -33,7 +33,8 @@ const Draft = () => {
   })
   const {disconnect} = useDisconnect()
   const [showFunction, setShowFunction] = useState(true)
-  const [showExecution, setExecution] = useState(true)
+  const [showBuy, setShowBuy] = useState(true)
+  const [showSell, setShowSell] = useState(false)
   const [expression, setExpression] = useState<ExpressionSubItem[]>([])
   const [isOpenInsertFunction, setIsOpenInsertFunction] = useState(false)
   const [expressionSubItem, setExpressionSubItem] = useState<ExpressionSubItem>({
@@ -106,6 +107,17 @@ const Draft = () => {
   const {status: waitApproveStatus} = useWaitForTransaction({
     hash: approveData?.hash,
     cacheTime: 3_000,
+  })
+  const { data: findData, status: findStatus } = useContractRead({
+    address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+    abi: NEST_CRAFT_ABI,
+    args: [
+      0, 20, 20, address,
+    ],
+    chainId: chain?.id ?? bscTestnet.id,
+    functionName: 'find',
+    cacheTime: 3_000,
+    watch: true,
   })
 
   useEffect(() => {
@@ -341,7 +353,7 @@ const Draft = () => {
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <div className={`flex flex-col gap-3 p-3 overflow-y-auto pb-20`}>
+          <div className={`flex flex-col gap-3 p-3 h-[50vh] overflow-y-auto pb-20`}>
             {
               Functions.map((item, index) => (
                 <div key={index}
@@ -383,8 +395,8 @@ const Draft = () => {
       <div
         className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
-          className={'font-bold text-xl border-b px-3 py-2 min-h-12 flex items-center justify-between cursor-pointer hover:bg-neutral-50'}
-          onClick={() => setExecution(!showExecution)}
+          className={'font-bold text-xl border-b px-3 py-2 h-12 flex items-center justify-between cursor-pointer hover:bg-neutral-50'}
+          onClick={() => setShowBuy(!showBuy)}
         >
           <div>
             Estimate
@@ -398,7 +410,7 @@ const Draft = () => {
         </div>
         <Transition
           as={Fragment}
-          show={expression.length > 0 && showExecution}
+          show={expression.length > 0 && showBuy}
           enter="ease-out duration-100"
           enterFrom="opacity-0 scale-95"
           enterTo="opacity-100 scale-100"
@@ -431,6 +443,62 @@ const Draft = () => {
               {(buyStatus === 'success' && waitBuyStatus === 'success') && 'Buy Success'}
               {(buyStatus === 'error' || waitBuyStatus === 'error') && 'Buy Error'}
             </button>
+          </div>
+        </Transition>
+      </div>
+    )
+  }
+
+  const SellModal = () => {
+    return (
+      <div
+        className={'absolute z-10 bottom-0 right-96 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
+        <div
+          className={'font-bold text-xl border-b px-3 py-2 h-12 flex items-center justify-between cursor-pointer hover:bg-neutral-50'}
+          onClick={() => setShowSell(!showSell)}
+        >
+          <div>
+           My Orders
+          </div>
+          <div className={'text-neutral-700 font-light'}>
+            {
+              // @ts-ignore
+              findData?.filter((item) => item.owner === address).length
+            }
+          </div>
+        </div>
+        <Transition
+          as={Fragment}
+          show={showSell}
+          enter="ease-out duration-100"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="ease-in duration-100"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
+        >
+          <div className={`flex flex-col gap-3 p-3 h-[50vh] overflow-y-auto overflow-x-hidden font-normal`}>
+            {
+              // @ts-ignore
+              findData?.filter((item) => item.owner === address)
+                ?.map((item: any, index: number) => (
+                <div key={index} className={'border border-1 rounded-xl text-sm'}>
+                  <div className={'p-3'}>
+                    <div className={'flex justify-between'}>
+                      <div>
+                        No.{index + 1} shares: {item.shares}
+                      </div>
+                      <button className={'border-1 border px-3 py-1 text-xs rounded hover:bg-red-400 hover:text-white hover:border-red-400'}>
+                        Sell
+                      </button>
+                    </div>
+                    <div className={'font-light text-xs'}>
+                      {item.expr}
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
           </div>
         </Transition>
       </div>
@@ -531,6 +599,7 @@ const Draft = () => {
       </div>
       {ExprShow()}
       {MFunctionModal()}
+      {SellModal()}
       {BuyModal()}
     </main>
   )
