@@ -413,6 +413,7 @@ const Draft = () => {
               )
             }
             <button
+              hidden={!address}
               className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}
               disabled={!buy} onClick={buy}>
               {buyStatus === 'loading' && 'Buying...'}
@@ -509,6 +510,7 @@ const Draft = () => {
       {Header()}
       <div className={'absolute right-0 top-12 z-50'}>
         <button
+          hidden={!address}
           className={`${chain?.id === bscTestnet.id ? '' : 'text-red-500 underline font-bold'} p-4`}
           disabled={!switchNetwork || chain?.id === bscTestnet.id}
           onClick={() => switchNetwork?.(bscTestnet.id)}
