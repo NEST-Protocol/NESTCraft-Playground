@@ -10,7 +10,7 @@ import {
   useContractWrite,
   useDisconnect,
   useNetwork,
-  usePrepareContractWrite, useSwitchNetwork
+  usePrepareContractWrite, useSwitchNetwork, useWaitForTransaction
 } from "wagmi";
 import {InjectedConnector} from 'wagmi/connectors/injected';
 import {NEST_CRAFT_ABI} from "@/constant/abi";
@@ -78,10 +78,15 @@ const Draft = () => {
     chainId: chain?.id ?? bscTestnet.id,
   })
   const {
+    data: buyData,
     write: buy,
     status: buyStatus,
     reset: resetBuy,
   } = useContractWrite(buyPrepareConfig)
+  const {status: waitBuyStatus} = useWaitForTransaction({
+    hash: buyData?.hash,
+    cacheTime: 3_000,
+  })
   const {config: approvePrepareConfig} = usePrepareContractWrite({
     address: NEST_ADDRESS[chain?.id ?? bscTestnet.id],
     abi: erc20ABI,
@@ -93,10 +98,15 @@ const Draft = () => {
     chainId: chain?.id ?? bscTestnet.id,
   })
   const {
+    data: approveData,
     write: approve,
     status: approveStatus,
     reset: resetApprove,
   } = useContractWrite(approvePrepareConfig)
+  const {status: waitApproveStatus} = useWaitForTransaction({
+    hash: approveData?.hash,
+    cacheTime: 3_000,
+  })
 
   useEffect(() => {
     if (approveStatus === 'success' || approveStatus === 'error') {
@@ -405,10 +415,10 @@ const Draft = () => {
               allowanceData !== undefined && (BigInt(allowanceData || 0) < BigInt(estimateData || 0)) && (
                 <button onClick={approve} disabled={!approve}
                         className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}>
-                  {approveStatus === 'loading' && 'Approving...'}
-                  {approveStatus === 'idle' && 'Approve'}
-                  {approveStatus === 'success' && 'Approve Success'}
-                  {approveStatus === 'error' && 'Approve Error'}
+                  {(approveStatus === 'loading' || waitApproveStatus === 'loading') && 'Approving...'}
+                  {(approveStatus === 'idle' || waitApproveStatus === 'idle') && 'Approve'}
+                  {(approveStatus === 'success' || waitApproveStatus === 'success') && 'Approve Success'}
+                  {(approveStatus === 'error' || waitApproveStatus === 'error') && 'Approve Error'}
                 </button>
               )
             }
@@ -416,10 +426,10 @@ const Draft = () => {
               hidden={!address}
               className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}
               disabled={!buy} onClick={buy}>
-              {buyStatus === 'loading' && 'Buying...'}
-              {buyStatus === 'idle' && 'Buy'}
-              {buyStatus === 'success' && 'Buy Success'}
-              {buyStatus === 'error' && 'Buy Error'}
+              {(buyStatus === 'loading' || waitBuyStatus === 'loading') && 'Buying...'}
+              {(buyStatus === 'idle' || waitBuyStatus === 'idle') && 'Buy'}
+              {(buyStatus === 'success' || waitBuyStatus === 'success') && 'Buy Success'}
+              {(buyStatus === 'error' || waitBuyStatus === 'error') && 'Buy Error'}
             </button>
           </div>
         </Transition>
