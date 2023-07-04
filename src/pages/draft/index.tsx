@@ -463,7 +463,7 @@ const Draft = () => {
           <div className={'text-neutral-700 font-light'}>
             {
               // @ts-ignore
-              findData?.filter((item) => item.owner === address).length
+              findData?.filter((item) => item.owner === address && item.shares > 0).length
             }
           </div>
         </div>
@@ -480,7 +480,7 @@ const Draft = () => {
           <div className={`flex flex-col gap-3 p-3 h-[50vh] overflow-y-auto overflow-x-hidden font-normal`}>
             {
               // @ts-ignore
-              findData?.filter((item) => item.owner === address)
+              findData?.filter((item) => item.owner === address && item.shares > 0)
                 ?.map((item: any, index: number) => (
                 <div key={index} className={'border border-1 rounded-xl text-sm'}>
                   <div className={'p-3'}>
