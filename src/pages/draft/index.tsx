@@ -416,8 +416,8 @@ const Draft = () => {
                 <button onClick={approve} disabled={!approve}
                         className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}>
                   {(approveStatus === 'loading' || waitApproveStatus === 'loading') && 'Approving...'}
-                  {(approveStatus === 'idle' || waitApproveStatus === 'idle') && 'Approve'}
-                  {(approveStatus === 'success' || waitApproveStatus === 'success') && 'Approve Success'}
+                  {(approveStatus === 'idle' && waitApproveStatus === 'idle') && 'Approve'}
+                  {(approveStatus === 'success' && waitApproveStatus === 'success') && 'Approve Success'}
                   {(approveStatus === 'error' || waitApproveStatus === 'error') && 'Approve Error'}
                 </button>
               )
@@ -427,8 +427,8 @@ const Draft = () => {
               className={'bg-neutral-700 p-2 text-white rounded font-bold disabled:cursor-not-allowed disabled:bg-red-200'}
               disabled={!buy} onClick={buy}>
               {(buyStatus === 'loading' || waitBuyStatus === 'loading') && 'Buying...'}
-              {(buyStatus === 'idle' || waitBuyStatus === 'idle') && 'Buy'}
-              {(buyStatus === 'success' || waitBuyStatus === 'success') && 'Buy Success'}
+              {(buyStatus === 'idle' && waitBuyStatus === 'idle') && 'Buy'}
+              {(buyStatus === 'success' && waitBuyStatus === 'success') && 'Buy Success'}
               {(buyStatus === 'error' || waitBuyStatus === 'error') && 'Buy Error'}
             </button>
           </div>
