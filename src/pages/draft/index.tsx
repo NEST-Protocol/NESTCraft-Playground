@@ -10,14 +10,14 @@ import {
   useContractWrite,
   useDisconnect,
   useNetwork,
-  usePrepareContractWrite
+  usePrepareContractWrite, useSwitchNetwork
 } from "wagmi";
 import {InjectedConnector} from 'wagmi/connectors/injected';
 import {NEST_CRAFT_ABI} from "@/constant/abi";
 import {NEST_ADDRESS, NEST_CRAFT_ADDRESS} from "@/constant/address";
 import {bscTestnet} from "wagmi/chains";
 import {ExpressionSubItem, Functions} from "@/constant/functions";
-import { motion } from "framer-motion";
+import {motion} from "framer-motion";
 
 const tokens = [
   {name: 'ETH', value: 0},
@@ -43,8 +43,10 @@ const Draft = () => {
     argument: null
   })
   const {chain} = useNetwork()
+  const {isLoading, pendingChainId, switchNetwork} =
+    useSwitchNetwork()
   const [expr, setExpr] = useState<string | undefined>(undefined)
-  const {data: estimateData, isLoading: isEstimateLoading, error} = useContractRead({
+  const {data: estimateData, isLoading: isEstimateLoading} = useContractRead({
     abi: NEST_CRAFT_ABI,
     address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
     args: [
@@ -366,7 +368,7 @@ const Draft = () => {
     )
   }
 
-  const EstimateModal = () => {
+  const BuyModal = () => {
     return (
       <div
         className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
@@ -445,7 +447,7 @@ const Draft = () => {
     )
   }
 
-  const Content = () => {
+  const ExprShow = () => {
     return (
       <div
         style={{
@@ -456,7 +458,8 @@ const Draft = () => {
         <motion.div
           drag
         >
-          <div className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-move hover:shadow-lg max-w-full'}>
+          <div
+            className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-move hover:shadow-lg max-w-full'}>
             {
               expression
                 .map((item, index) => {
@@ -504,9 +507,19 @@ const Draft = () => {
     <main className={'h-screen w-screen flex flex-col relative'}>
       {InsertModal()}
       {Header()}
-      {Content()}
+      <div className={'absolute right-0 top-12 z-50'}>
+        <button
+          className={`${chain?.id === bscTestnet.id ? '' : 'text-red-500 underline font-bold'} p-4`}
+          disabled={!switchNetwork || chain?.id === bscTestnet.id}
+          onClick={() => switchNetwork?.(bscTestnet.id)}
+        >
+          {!isLoading && chain?.id !== bscTestnet.id && 'switch to'} {bscTestnet.name}
+          {isLoading && pendingChainId === bscTestnet.id && ' (switching)'}
+        </button>
+      </div>
+      {ExprShow()}
       {MFunctionModal()}
-      {EstimateModal()}
+      {BuyModal()}
     </main>
   )
 }
