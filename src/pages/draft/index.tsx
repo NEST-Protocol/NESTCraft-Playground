@@ -1,4 +1,4 @@
-import {Fragment, useEffect, useState} from "react";
+import {FC, Fragment, useEffect, useState} from "react";
 import {Dialog, Listbox, Transition} from "@headlessui/react";
 import {CheckIcon, ChevronUpDownIcon} from '@heroicons/react/20/solid'
 import {XCircleIcon} from "@heroicons/react/24/solid";
@@ -108,14 +108,14 @@ const Draft = () => {
     hash: approveData?.hash,
     cacheTime: 3_000,
   })
-  const { data: findData, status: findStatus } = useContractRead({
+  const {data: findData, status: findStatus} = useContractRead({
     address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
     abi: NEST_CRAFT_ABI,
     args: [
-      0, 20, 20, address,
+      0, 20, 1,
     ],
     chainId: chain?.id ?? bscTestnet.id,
-    functionName: 'find',
+    functionName: 'list',
     cacheTime: 3_000,
     watch: true,
   })
@@ -458,12 +458,15 @@ const Draft = () => {
           onClick={() => setShowSell(!showSell)}
         >
           <div>
-           My Orders
+            My Orders
           </div>
           <div className={'text-neutral-700 font-light'}>
             {
               // @ts-ignore
-              findData?.filter((item) => item.owner === address && item.shares > 0).length
+              findData?.map((item, index) => ({
+                ...item,
+                index: index
+              })).filter((item: any) => item.owner === address && item.shares > 0).length
             }
           </div>
         </div>
@@ -480,24 +483,13 @@ const Draft = () => {
           <div className={`flex flex-col gap-3 p-3 h-[50vh] overflow-y-auto overflow-x-hidden font-normal`}>
             {
               // @ts-ignore
-              findData?.filter((item) => item.owner === address && item.shares > 0)
-                ?.map((item: any, index: number) => (
-                <div key={index} className={'border border-1 rounded-xl text-sm'}>
-                  <div className={'p-3'}>
-                    <div className={'flex justify-between'}>
-                      <div>
-                        No.{index + 1} shares: {item.shares}
-                      </div>
-                      <button className={'border-1 border px-3 py-1 text-xs rounded hover:bg-red-400 hover:text-white hover:border-red-400'}>
-                        Sell
-                      </button>
-                    </div>
-                    <div className={'font-light text-xs'}>
-                      {item.expr}
-                    </div>
-                  </div>
-                </div>
-              ))
+              findData?.map((item, index) => ({
+                ...item,
+                index: index
+              }))?.filter((item: any) => item.owner === address && item.shares > 0)
+                ?.map((item: any) => (
+                  <SellButton item={item} key={item.index}/>
+                ))
             }
           </div>
         </Transition>
@@ -602,6 +594,48 @@ const Draft = () => {
       {SellModal()}
       {BuyModal()}
     </main>
+  )
+}
+
+type SellButtonProps = {
+  item: any
+}
+
+const SellButton: FC<SellButtonProps> = ({item}) => {
+  const {chain} = useNetwork()
+  const {config: sellPrepareConfig} = usePrepareContractWrite({
+    address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+    abi: NEST_CRAFT_ABI,
+    functionName: 'sell',
+    args: [
+      item.index,
+    ],
+    chainId: chain?.id ?? bscTestnet.id,
+  })
+  const {
+    data: sellData,
+    write: sell,
+    status: sellStatus,
+    reset: resetSell,
+  } = useContractWrite(sellPrepareConfig)
+  const {status: waitSellStatus} = useWaitForTransaction({
+    hash: sellData?.hash,
+    cacheTime: 3_000,
+  })
+
+  return (
+    <div className={'border border-1 rounded-xl text-sm'}>
+      <div className={'p-3'}>
+        <div className={'font-light text-xs mb-2'}>
+          {item.expr}
+        </div>
+        <button
+          onClick={sell} disabled={!sell}
+          className={'border-1 border px-3 py-1 text-xs rounded hover:bg-red-400 hover:text-white hover:border-red-400 disabled:cursor-not-allowed'}>
+          Sell
+        </button>
+      </div>
+    </div>
   )
 }
 
