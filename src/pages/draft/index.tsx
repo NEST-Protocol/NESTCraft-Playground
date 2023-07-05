@@ -613,7 +613,7 @@ const Draft = () => {
       </div>
       {ExprShow()}
       {MFunctionModal()}
-      {address && SellModal()}
+      {SellModal()}
       {BuyModal()}
     </main>
   )
