@@ -676,7 +676,10 @@ const SellButton: FC<SellButtonProps> = ({item}) => {
           <button
             onClick={sell} disabled={!sell}
             className={'border-1 border px-3 py-1 text-xs rounded hover:bg-red-400 hover:text-white hover:border-red-400 disabled:cursor-not-allowed'}>
-            Sell
+            {(sellStatus === 'loading' || waitSellStatus === 'loading') && 'Selling...'}
+            {(sellStatus === 'idle' && waitSellStatus === 'idle') && 'Sell'}
+            {(sellStatus === 'success' && waitSellStatus === 'success') && 'Sell Success'}
+            {(sellStatus === 'error' || waitSellStatus === 'error') && 'Sell Error'}
           </button>
         </div>
       </div>
