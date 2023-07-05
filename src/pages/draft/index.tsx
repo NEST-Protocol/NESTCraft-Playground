@@ -463,10 +463,10 @@ const Draft = () => {
           <div className={'text-neutral-700 font-light'}>
             {
               // @ts-ignore
-              findData?.map((item, index) => ({
+              findData ? findData?.map((item, index) => ({
                 ...item,
                 index: index
-              })).filter((item: any) => item.owner === address && item.shares > 0).length
+              })).filter((item: any) => item.owner === address && item.shares > 0).length : 0
             }
           </div>
         </div>
