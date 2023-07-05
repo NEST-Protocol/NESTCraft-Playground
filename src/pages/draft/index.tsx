@@ -532,6 +532,22 @@ const Draft = () => {
     )
   }
 
+  const NetworkNotice = () => {
+    return (
+      <div className={'absolute right-0 top-12 z-50'}>
+        <button
+          hidden={!address}
+          className={`${chain?.id === bscTestnet.id ? '' : 'text-red-500 underline font-bold'} p-4`}
+          disabled={!switchNetwork || chain?.id === bscTestnet.id}
+          onClick={() => switchNetwork?.(bscTestnet.id)}
+        >
+          {!isLoading && chain?.id !== bscTestnet.id && 'switch to'} {bscTestnet.name}
+          {isLoading && pendingChainId === bscTestnet.id && ' (switching)'}
+        </button>
+      </div>
+    )
+  }
+
   const ExprShowCard = () => {
     return (
       <div
@@ -544,10 +560,11 @@ const Draft = () => {
           <div
             className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-move hover:shadow-lg max-w-full'}>
             {
-              expression.length > 0 ? (expression
-                .map((item, index) => {
-                  return (
-                    <span key={index} className={'flex items-center gap-2'}>
+              expression.length > 0 ? (
+                expression
+                  .map((item, index) => {
+                    return (
+                      <span key={index} className={'flex items-center gap-2'}>
                       <span
                         className={'hover:bg-neutral-100 rounded flex gap-2 p-2 items-center relative group cursor-pointer whitespace-nowrap'}>
                         <div
@@ -583,14 +600,14 @@ const Draft = () => {
                           )
                         }
                       </span>
-                      {
-                        index !== expression.length - 1 && (
-                          <span>+</span>
-                        )
-                      }
+                        {
+                          index !== expression.length - 1 && (
+                            <span>+</span>
+                          )
+                        }
                     </span>
-                  )
-                })) : (
+                    )
+                  })) : (
                 <div>
                   Start to craft your expression!
                 </div>
@@ -606,17 +623,7 @@ const Draft = () => {
     <main className={'h-screen w-screen flex flex-col relative'}>
       {InsertModal()}
       {Header()}
-      <div className={'absolute right-0 top-12 z-50'}>
-        <button
-          hidden={!address}
-          className={`${chain?.id === bscTestnet.id ? '' : 'text-red-500 underline font-bold'} p-4`}
-          disabled={!switchNetwork || chain?.id === bscTestnet.id}
-          onClick={() => switchNetwork?.(bscTestnet.id)}
-        >
-          {!isLoading && chain?.id !== bscTestnet.id && 'switch to'} {bscTestnet.name}
-          {isLoading && pendingChainId === bscTestnet.id && ' (switching)'}
-        </button>
-      </div>
+      {NetworkNotice()}
       {ExprShowCard()}
       {MartingaleFunctionCard()}
       {SellCard()}
@@ -650,7 +657,7 @@ const SellButton: FC<SellButtonProps> = ({item}) => {
     hash: sellData?.hash,
     cacheTime: 3_000,
   })
-  const {data: estimateData, isLoading: isEstimateLoading} = useContractRead({
+  const {data: estimateData} = useContractRead({
     abi: NEST_CRAFT_ABI,
     address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
     args: [
@@ -661,6 +668,14 @@ const SellButton: FC<SellButtonProps> = ({item}) => {
     cacheTime: 3_000,
     watch: true,
   })
+
+  useEffect(() => {
+    if (sellStatus === 'success' || sellStatus === 'error') {
+      setTimeout(() => {
+        resetSell()
+      }, 3_000)
+    }
+  }, [sellStatus, resetSell])
 
   return (
     <div className={'border border-1 rounded-xl text-sm hover:shadow hover:bg-neutral-50'}>
