@@ -342,7 +342,7 @@ const Draft = () => {
     )
   }
 
-  const MFunctionModal = () => {
+  const MartingaleFunctionCard = () => {
     return (
       <div
         className={'absolute z-10 bottom-0 left-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold flex flex-col overflow-hidden'}>
@@ -366,8 +366,8 @@ const Draft = () => {
             {
               Functions.map((item, index) => (
                 <div key={index}
-                     className={'bg-white p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
-                  <div className={'flex items-center gap-2 justify-between'}>
+                     className={'bg-white flex flex-col gap-2 p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
+                  <div className={'flex items-center gap-2 justify-between relative'}>
                     <div className={'flex gap-1'}>
                       {item.function}
                       {
@@ -387,7 +387,7 @@ const Draft = () => {
                         setExpressionSubItem(item)
                         setIsOpenInsertFunction(true)
                       }}
-                      className={'border bg-white hover:bg-neutral-100 p-1 rounded-full w-8 h-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
+                      className={'border absolute right-0 bg-white hover:bg-neutral-100 p-1 rounded-full w-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
                       +
                     </button>
                   </div>
@@ -403,7 +403,7 @@ const Draft = () => {
     )
   }
 
-  const BuyModal = () => {
+  const BuyCard = () => {
     return (
       <div
         className={'absolute z-10 bottom-0 right-96 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
@@ -462,7 +462,7 @@ const Draft = () => {
     )
   }
 
-  const SellModal = () => {
+  const SellCard = () => {
     return (
       <div
         className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
@@ -532,7 +532,7 @@ const Draft = () => {
     )
   }
 
-  const ExprShow = () => {
+  const ExprShowCard = () => {
     return (
       <div
         style={{
@@ -540,13 +540,11 @@ const Draft = () => {
           backgroundSize: '40px 40px',
         }}
         className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold sm:text-base md:text-xl lg:text-3xl xl:text-5xl overflow-hidden'}>
-        <motion.div
-          drag
-        >
+        <motion.div drag>
           <div
             className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-move hover:shadow-lg max-w-full'}>
             {
-              expression
+              expression.length > 0 ? (expression
                 .map((item, index) => {
                   return (
                     <span key={index} className={'flex items-center gap-2'}>
@@ -592,7 +590,11 @@ const Draft = () => {
                       }
                     </span>
                   )
-                })
+                })) : (
+                <div>
+                  Start to craft your expression!
+                </div>
+              )
             }
           </div>
         </motion.div>
@@ -615,10 +617,10 @@ const Draft = () => {
           {isLoading && pendingChainId === bscTestnet.id && ' (switching)'}
         </button>
       </div>
-      {ExprShow()}
-      {MFunctionModal()}
-      {SellModal()}
-      { expr && BuyModal()}
+      {ExprShowCard()}
+      {MartingaleFunctionCard()}
+      {SellCard()}
+      {expr && BuyCard()}
     </main>
   )
 }
