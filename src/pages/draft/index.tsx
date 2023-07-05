@@ -663,7 +663,7 @@ const SellButton: FC<SellButtonProps> = ({item}) => {
   })
 
   return (
-    <div className={'border border-1 rounded-xl text-sm'}>
+    <div className={'border border-1 rounded-xl text-sm hover:shadow hover:bg-neutral-50'}>
       <div className={'p-3'}>
         <div className={'font-light text-xs mb-2'}>
           {item.expr}
