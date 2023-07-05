@@ -156,7 +156,6 @@ const Draft = () => {
           }
         }
       })
-      expr = expr.replace(/1\*/g, '')
       expr = expr.replace(/\*1/g, '')
       setExpr(expr)
     } else {
