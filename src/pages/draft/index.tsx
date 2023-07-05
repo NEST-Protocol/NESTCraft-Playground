@@ -562,14 +562,18 @@ const Draft = () => {
                           <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
                         </div>
                         {
-                          item.coefficient !== 1 && (
+                          item.coefficient !== 1 && item.function !== '1' && (
                             <span>
-                              {item.coefficient} {item.function === '1' ? '' : '*'}
+                              {item.coefficient} *
                             </span>
                           )
                         }
                         {
-                          item.function !== '1' && (
+                          item.function === '1' ? (
+                            <span>
+                              {item.coefficient}
+                            </span>
+                          ) : (
                             <span className={'italic'}>{item.function}</span>
                           )
                         }
@@ -614,7 +618,7 @@ const Draft = () => {
       {ExprShow()}
       {MFunctionModal()}
       {SellModal()}
-      {BuyModal()}
+      { expr && BuyModal()}
     </main>
   )
 }
