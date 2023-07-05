@@ -622,6 +622,17 @@ const SellButton: FC<SellButtonProps> = ({item}) => {
     hash: sellData?.hash,
     cacheTime: 3_000,
   })
+  const {data: estimateData, isLoading: isEstimateLoading} = useContractRead({
+    abi: NEST_CRAFT_ABI,
+    address: NEST_CRAFT_ADDRESS[chain?.id ?? bscTestnet.id],
+    args: [
+      item.expr,
+    ],
+    chainId: chain?.id ?? bscTestnet.id,
+    functionName: 'estimate',
+    cacheTime: 3_000,
+    watch: true,
+  })
 
   return (
     <div className={'border border-1 rounded-xl text-sm'}>
@@ -629,11 +640,19 @@ const SellButton: FC<SellButtonProps> = ({item}) => {
         <div className={'font-light text-xs mb-2'}>
           {item.expr}
         </div>
-        <button
-          onClick={sell} disabled={!sell}
-          className={'border-1 border px-3 py-1 text-xs rounded hover:bg-red-400 hover:text-white hover:border-red-400 disabled:cursor-not-allowed'}>
-          Sell
-        </button>
+        <div className={'flex justify-between items-center'}>
+          <div className={'font-bold'}>
+            {/*@ts-ignore*/}
+            {estimateData ? `${(parseInt(BigInt(estimateData).toString()) / 1e18).toLocaleString('en-US', {
+              maximumFractionDigits: 6
+            })} NEST` : ''}
+          </div>
+          <button
+            onClick={sell} disabled={!sell}
+            className={'border-1 border px-3 py-1 text-xs rounded hover:bg-red-400 hover:text-white hover:border-red-400 disabled:cursor-not-allowed'}>
+            Sell
+          </button>
+        </div>
       </div>
     </div>
   )
