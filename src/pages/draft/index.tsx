@@ -406,7 +406,7 @@ const Draft = () => {
   const BuyCard = () => {
     return (
       <div
-        className={'absolute z-10 bottom-0 right-96 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
+                  className={'absolute z-10 bottom-0 right-96 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
           className={'font-bold text-xl border-b px-3 py-2 h-12 flex items-center justify-between cursor-pointer hover:bg-neutral-50'}
           onClick={() => setShowBuy(!showBuy)}
@@ -462,9 +462,9 @@ const Draft = () => {
     )
   }
 
-  const SellCard = () => {
+  const MyOrders = () => {
     return (
-      <div
+      <motion.div
         className={'absolute z-10 bottom-0 right-4 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
           className={'font-bold text-xl border-b px-3 py-2 h-12 flex items-center justify-between cursor-pointer hover:bg-neutral-50'}
@@ -507,7 +507,7 @@ const Draft = () => {
             }
           </div>
         </Transition>
-      </div>
+      </motion.div>
     )
   }
 
@@ -626,7 +626,7 @@ const Draft = () => {
       {NetworkNotice()}
       {ExprShowCard()}
       {MartingaleFunctionCard()}
-      {SellCard()}
+      {MyOrders()}
       {expr && BuyCard()}
     </main>
   )
