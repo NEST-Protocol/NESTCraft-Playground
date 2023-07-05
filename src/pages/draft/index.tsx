@@ -500,6 +500,7 @@ const Draft = () => {
                 ...item,
                 index: index
               }))?.filter((item: any) => item.owner === address && item.shares > 0)
+                .sort((a: any, b: any) => b.openBlock - a.openBlock)
                 ?.map((item: any) => (
                   <SellButton item={item} key={item.index}/>
                 ))
