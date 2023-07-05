@@ -143,12 +143,21 @@ const Draft = () => {
       let expr = ''
       expression.forEach((item, index) => {
         if (index === 0) {
-          expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
+          if (item.argument) {
+            expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
+          } else {
+            expr += `${item.coefficient}*${item.function}`
+          }
         } else {
-          expr += `+${item.coefficient}*${item.function}(${item.argument?.value})`
+          if (item.argument) {
+            expr += `+${item.coefficient}*${item.function}(${item.argument?.value})`
+          } else {
+            expr += `+${item.coefficient}*${item.function}`
+          }
         }
       })
       expr = expr.replace(/1\*/g, '')
+      expr = expr.replace(/\*1/g, '')
       setExpr(expr)
     } else {
       setExpr(undefined)
@@ -361,13 +370,17 @@ const Draft = () => {
                   <div className={'flex items-center gap-2 justify-between'}>
                     <div className={'flex gap-1'}>
                       {item.function}
-                      <div className={'flex text-neutral-700 font-light text-xs items-center gap-0.5'}>
-                        <div>(</div>
-                        <div key={index}>
-                          {item?.argument?.name}
-                        </div>
-                        <div>)</div>
-                      </div>
+                      {
+                        item.argument && (
+                          <div className={'flex text-neutral-700 font-light text-xs items-center gap-0.5'}>
+                            <div>(</div>
+                            <div key={index}>
+                              {item.argument.name}
+                            </div>
+                            <div>)</div>
+                          </div>
+                        )
+                      }
                     </div>
                     <button
                       onClick={() => {
@@ -550,14 +563,22 @@ const Draft = () => {
                         {
                           item.coefficient !== 1 && (
                             <span>
-                              {item.coefficient} *
+                              {item.coefficient} {item.function === '1' ? '' : '*'}
                             </span>
                           )
                         }
-                        <span className={'italic'}>{item.function}</span>
-                        <span className={'sm:text-sm md:text-lg lg:text-xl xl:text-3xl'}>
+                        {
+                          item.function !== '1' && (
+                            <span className={'italic'}>{item.function}</span>
+                          )
+                        }
+                        {
+                          item.argument && (
+                            <span className={'sm:text-sm md:text-lg lg:text-xl xl:text-3xl'}>
                           ({item.argument?.name})
-                        </span>
+                            </span>
+                          )
+                        }
                       </span>
                       {
                         index !== expression.length - 1 && (

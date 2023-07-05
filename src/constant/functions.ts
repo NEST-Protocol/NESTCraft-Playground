@@ -12,6 +12,12 @@ export type ExpressionSubItem = {
 export const Functions: ExpressionSubItem[] = [
   {
     coefficient: 1,
+    function: '1',
+    argument: null,
+    description: 'constant',
+  },
+  {
+    coefficient: 1,
     function: 'm1',
     argument: {
       type: 'token',
