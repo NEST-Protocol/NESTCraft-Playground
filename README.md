@@ -26,8 +26,15 @@ npm run dev
 
 ### 3. Choose a Martingale Functions
 
+Click the ```Martingale Functions``` tab, you can see all the martingale functions. 
+Example: 12 * m1(ETH)
+
 ### 4. Buy
 
-If you do not have NEST token, you can get some from [NEST faucet](https://testnet.binance.org/faucet-smart).
+Once you have chosen a martingale function, you can buy it. Remember to approve the amount of NEST first.
 
 ### 5. Sell
+
+All of your orders will be displayed in the ```My Orders``` tab. You can sell your orders at any time.
+
+Enjoy hacking!
