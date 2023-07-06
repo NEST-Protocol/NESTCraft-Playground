@@ -1,6 +1,5 @@
 // 将Latex表达式转换为合约可执行的函数
 export const parseExpr = (expr: string) => {
-  // latex表达式如:
 }
 
 // 将合约可执行的函数转换为Latex表达式
