@@ -20,7 +20,8 @@ import {ExpressionSubItem, Functions} from "@/constant/functions";
 import {motion} from "framer-motion";
 import {InlineMath} from 'react-katex';
 import {tokens} from "@/constant/tokens";
-import {formatExpr} from "@/utils/expr";
+import {formatExpr, parseExpr} from "@/utils/expr";
+import {PlusIcon} from "@heroicons/react/24/outline";
 
 const Draft = () => {
   const {address, isConnected} = useAccount()
@@ -139,40 +140,8 @@ const Draft = () => {
 
   useEffect(() => {
     if (expression.length > 0) {
-      // 遍历所有的函数，组合成表达式
-      let expr = ''
-      expression.forEach((item, index) => {
-        if (index === 0) {
-          if (item.argument) {
-            if (item.coefficient === 1) {
-              expr += `${item.function}(${item.argument?.value})`
-            } else {
-              expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
-            }
-          } else {
-            if (item.coefficient === 1) {
-              expr += `${item.function}`
-            } else {
-              expr += `${item.coefficient}*${item.function}`
-            }
-          }
-        } else {
-          if (item.argument) {
-            if (item.coefficient === 1) {
-              expr += `+${item.function}(${item.argument?.value})`
-            } else {
-              expr += `+${item.coefficient}*${item.function}(${item.argument?.value})`
-            }
-          } else {
-            if (item.coefficient === 1) {
-              expr += `+${item.function}`
-            } else {
-              expr += `+${item.coefficient}*${item.function}`
-            }
-          }
-        }
-      })
-      expr = expr.replace(/\*1/g, '')
+      const expressionArray = expression.map((item, index) => parseExpr(item))
+      const expr = expressionArray.join('+')
       setExpr(expr)
     } else {
       setExpr(undefined)
@@ -383,7 +352,7 @@ const Draft = () => {
             {
               Functions.map((item, index) => (
                 <div key={index}
-                     className={'bg-white relative flex flex-col gap-2 p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
+                     className={'bg-white relative flex flex-col gap-2 p-3 rounded-xl text-neutral-700 border text-md group hover:shadow hover:bg-neutral-50'}>
                   <InlineMath>
                     {item.description}
                   </InlineMath>
@@ -392,8 +361,8 @@ const Draft = () => {
                       setExpressionSubItem(item)
                       setIsOpenInsertFunction(true)
                     }}
-                    className={'border absolute right-2 top-2 bg-white hover:bg-neutral-100 p-1 rounded-full w-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
-                    +
+                    className={'border absolute right-2 top-2 bg-white hover:bg-neutral-100 p-1 rounded-full h-8 w-8 text-sm text-neutral-700 opacity-0 group-hover:opacity-100 flex justify-center items-center'}>
+                    <PlusIcon className={'w-4'} />
                   </button>
                 </div>
               ))
@@ -577,21 +546,9 @@ const Draft = () => {
                           className={'absolute text-sm right-[-10px] top-[-10px] opacity-0 group-hover:opacity-100'}>
                           <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
                         </div>
-                        {
-                          item.coefficient !== 1 && (
-                            <span>
-                              {item.coefficient} *
-                            </span>
-                          )
-                        }
-                        <InlineMath>{item.name}</InlineMath>
-                        {
-                          item.argument && (
-                            <span className={'sm:text-sm md:text-lg lg:text-xl xl:text-3xl'}>
-                              ({item.argument?.name})
-                            </span>
-                          )
-                        }
+                        <InlineMath>
+                          {formatExpr(parseExpr(item))}
+                        </InlineMath>
                       </span>
                         {
                           index !== expression.length - 1 && (
@@ -605,7 +562,8 @@ const Draft = () => {
                   <div className={'font-bold'}>
                     Start to craft your expression!
                   </div>
-                  <a className={'text-sm underline italic'} href={'https://www.nestprotocol.org/craft'} target={'_blank'}>
+                  <a className={'text-sm underline italic'} href={'https://www.nestprotocol.org/craft'}
+                     target={'_blank'}>
                     Learn more about NESTCraft
                   </a>
                 </div>

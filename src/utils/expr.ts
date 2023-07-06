@@ -1,5 +1,23 @@
 // 将Latex表达式转换为合约可执行的函数
-export const parseExpr = (expr: string) => {
+import {ExpressionSubItem} from "@/constant/functions";
+
+export const parseExpr = (item: ExpressionSubItem) => {
+  let expr = ''
+  if (item.argument) {
+    if (item.coefficient === 1) {
+      expr += `${item.function}(${item.argument?.value})`
+    } else {
+      expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
+    }
+  } else {
+    if (item.coefficient === 1) {
+      expr += `${item.function}`
+    } else {
+      expr += `${item.coefficient}*${item.function}`
+    }
+  }
+  expr = expr.replace(/\*1/g, '')
+  return expr
 }
 
 // 将合约可执行的函数转换为Latex表达式
