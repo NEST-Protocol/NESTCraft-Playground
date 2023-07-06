@@ -274,3 +274,21 @@ export const NEST_CRAFT_ABI = [{
   "stateMutability": "nonpayable",
   "type": "function"
 }]
+
+export const NEST_FAUCET_ABI = [{
+  "inputs": [],
+  "stateMutability": "nonpayable",
+  "type": "constructor"
+}, {
+  "inputs": [{"internalType": "address", "name": "token", "type": "address"}],
+  "name": "getAllToken",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+}, {
+  "inputs": [{"internalType": "address", "name": "token", "type": "address"}],
+  "name": "getToken",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+}]

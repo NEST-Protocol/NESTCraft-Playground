@@ -8,3 +8,7 @@ export const NEST_ADDRESS: {[p: number]: Address} = {
 export const NEST_CRAFT_ADDRESS: {[p: number]: Address} = {
   [bscTestnet.id]: "0x06F86C308123e029ab80aCA18862Acfab52C47D8",
 }
+
+export const NEST_FAUCET_ADDRESS: {[p: number]: Address} = {
+  [bscTestnet.id]: "0x953750D91CaCcFBD43fcbC562BB2d66975231CE7",
+}
