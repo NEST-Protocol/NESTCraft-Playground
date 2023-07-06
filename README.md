@@ -37,4 +37,7 @@ Once you have chosen a martingale function, you can buy it. Remember to approve 
 
 All of your orders will be displayed in the ```My Orders``` tab. You can sell your orders at any time.
 
+## More
+- [NEST White Paper](https://www.nestprotocol.org/doc/ennestwhitepaper.pdf)
+
 Enjoy hacking!
