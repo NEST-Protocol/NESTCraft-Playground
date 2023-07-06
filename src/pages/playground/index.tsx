@@ -18,12 +18,8 @@ import {NEST_ADDRESS, NEST_CRAFT_ADDRESS} from "@/constant/address";
 import {bscTestnet} from "wagmi/chains";
 import {ExpressionSubItem, Functions} from "@/constant/functions";
 import {motion} from "framer-motion";
-
-const tokens = [
-  {name: 'ETH', value: 0},
-  {name: 'BTC', value: 1},
-  {name: 'BNB', value: 2},
-]
+import {InlineMath} from 'react-katex';
+import {tokens} from "@/constant/tokens";
 
 const Draft = () => {
   const {address, isConnected} = useAccount()
@@ -40,8 +36,11 @@ const Draft = () => {
   const [expressionSubItem, setExpressionSubItem] = useState<ExpressionSubItem>({
     coefficient: 1,
     function: '',
+    name: '',
     description: '',
-    argument: null
+    argument: null,
+    cost: '',
+    settlement: '',
   })
   const {chain} = useNetwork()
   const {isLoading, pendingChainId, switchNetwork} =
@@ -144,15 +143,31 @@ const Draft = () => {
       expression.forEach((item, index) => {
         if (index === 0) {
           if (item.argument) {
-            expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
+            if (item.coefficient === 1) {
+              expr += `${item.function}(${item.argument?.value})`
+            } else {
+              expr += `${item.coefficient}*${item.function}(${item.argument?.value})`
+            }
           } else {
-            expr += `${item.coefficient}*${item.function}`
+            if (item.coefficient === 1) {
+              expr += `${item.function}`
+            } else {
+              expr += `${item.coefficient}*${item.function}`
+            }
           }
         } else {
           if (item.argument) {
-            expr += `+${item.coefficient}*${item.function}(${item.argument?.value})`
+            if (item.coefficient === 1) {
+              expr += `+${item.function}(${item.argument?.value})`
+            } else {
+              expr += `+${item.coefficient}*${item.function}(${item.argument?.value})`
+            }
           } else {
-            expr += `+${item.coefficient}*${item.function}`
+            if (item.coefficient === 1) {
+              expr += `+${item.function}`
+            } else {
+              expr += `+${item.coefficient}*${item.function}`
+            }
           }
         }
       })
@@ -192,21 +207,23 @@ const Draft = () => {
                 <Dialog.Panel
                   className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col gap-4">
                   <div className="text-xl font-bold leading-6 text-gray-900">
-                    Insert function
+                    <InlineMath>
+                      {expressionSubItem?.description}
+                    </InlineMath>
                   </div>
-                  <div>
-                    <div className={'font-bold'}>
-                      {expressionSubItem?.function}
+                  <div className={'text-sm text-neutral-700 font-bold border p-3 mt-2 rounded'}>
+                    <div>
+                      Cost: <InlineMath>{expressionSubItem.cost}</InlineMath>
                     </div>
                     <div>
-                      {expressionSubItem?.description}
+                      Settlement: <InlineMath>{expressionSubItem.settlement}</InlineMath>
                     </div>
                   </div>
                   <div className="mt-2 flex flex-col gap-2">
                     {
                       expressionSubItem?.argument && (
                         <>
-                          <label className={'text-sm'}>
+                          <label className={'text-sm font-bold'}>
                             argument
                           </label>
                           {
@@ -289,7 +306,7 @@ const Draft = () => {
                         </>
                       )
                     }
-                    <label className={'text-sm'}>
+                    <label className={'text-sm font-bold'}>
                       coefficient
                     </label>
                     <input className={'w-full h-10 border px-3 rounded'}
@@ -365,34 +382,18 @@ const Draft = () => {
             {
               Functions.map((item, index) => (
                 <div key={index}
-                     className={'bg-white flex flex-col gap-2 p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
-                  <div className={'flex items-center gap-2 justify-between relative'}>
-                    <div className={'flex gap-1'}>
-                      {item.function}
-                      {
-                        item.argument && (
-                          <div className={'flex text-neutral-700 font-light text-xs items-center gap-0.5'}>
-                            <div>(</div>
-                            <div key={index}>
-                              {item.argument.name}
-                            </div>
-                            <div>)</div>
-                          </div>
-                        )
-                      }
-                    </div>
-                    <button
-                      onClick={() => {
-                        setExpressionSubItem(item)
-                        setIsOpenInsertFunction(true)
-                      }}
-                      className={'border absolute right-0 bg-white hover:bg-neutral-100 p-1 rounded-full w-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
-                      +
-                    </button>
-                  </div>
-                  <div className={'text-xs text-neutral-700 font-light'}>
+                     className={'bg-white relative flex flex-col gap-2 p-3 rounded-xl text-neutral-700 border font-medium text-sm group hover:shadow hover:bg-neutral-50'}>
+                  <InlineMath>
                     {item.description}
-                  </div>
+                  </InlineMath>
+                  <button
+                    onClick={() => {
+                      setExpressionSubItem(item)
+                      setIsOpenInsertFunction(true)
+                    }}
+                    className={'border absolute right-2 top-2 bg-white hover:bg-neutral-100 p-1 rounded-full w-8 text-neutral-700 opacity-0 group-hover:opacity-100'}>
+                    +
+                  </button>
                 </div>
               ))
             }
@@ -405,7 +406,7 @@ const Draft = () => {
   const BuyCard = () => {
     return (
       <div
-                  className={'absolute z-10 bottom-0 right-96 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
+        className={'absolute z-10 bottom-0 right-96 bg-white rounded-tl-xl rounded-tr-xl w-80 border font-bold overflow-hidden'}>
         <div
           className={'font-bold text-xl border-b px-3 py-2 h-12 flex items-center justify-between cursor-pointer hover:bg-neutral-50'}
           onClick={() => setShowBuy(!showBuy)}
@@ -554,7 +555,7 @@ const Draft = () => {
           backgroundImage: 'radial-gradient(#bbb 5%, transparent 0)',
           backgroundSize: '40px 40px',
         }}
-        className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center font-bold sm:text-base md:text-xl lg:text-3xl xl:text-5xl overflow-hidden'}>
+        className={'z-0 w-full h-full bg-white flex flex-col justify-center items-center sm:text-base md:text-xl lg:text-3xl xl:text-5xl overflow-hidden'}>
         <motion.div drag>
           <div
             className={'bg-white p-10 border rounded-xl shadow-sm flex gap-2 items-center cursor-move hover:shadow-lg max-w-full'}>
@@ -576,25 +577,17 @@ const Draft = () => {
                           <XCircleIcon className={'w-6 fill-red-100 hover:fill-red-400'}/>
                         </div>
                         {
-                          item.coefficient !== 1 && item.function !== '1' && (
+                          item.coefficient !== 1 && (
                             <span>
                               {item.coefficient} *
                             </span>
                           )
                         }
-                        {
-                          item.function === '1' ? (
-                            <span>
-                              {item.coefficient}
-                            </span>
-                          ) : (
-                            <span className={'italic'}>{item.function}</span>
-                          )
-                        }
+                        <InlineMath>{item.name}</InlineMath>
                         {
                           item.argument && (
                             <span className={'sm:text-sm md:text-lg lg:text-xl xl:text-3xl'}>
-                          ({item.argument?.name})
+                              ({item.argument?.name})
                             </span>
                           )
                         }
@@ -607,7 +600,7 @@ const Draft = () => {
                     </span>
                     )
                   })) : (
-                <div>
+                <div className={'font-bold'}>
                   Start to craft your expression!
                 </div>
               )
