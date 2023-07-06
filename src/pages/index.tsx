@@ -21,6 +21,7 @@ import {motion} from "framer-motion";
 import {InlineMath} from 'react-katex';
 import {tokens} from "@/constant/tokens";
 import {formatExpr} from "@/utils/expr";
+
 const Draft = () => {
   const {address, isConnected} = useAccount()
   const {connect} = useConnect({
@@ -600,8 +601,13 @@ const Draft = () => {
                     </span>
                     )
                   })) : (
-                <div className={'font-bold'}>
-                  Start to craft your expression!
+                <div className={'flex flex-col gap-3'}>
+                  <div className={'font-bold'}>
+                    Start to craft your expression!
+                  </div>
+                  <a className={'text-sm underline italic'} href={'https://www.nestprotocol.org/craft'} target={'_blank'}>
+                    Learn more about NESTCraft
+                  </a>
                 </div>
               )
             }
