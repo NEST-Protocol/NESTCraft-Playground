@@ -17,8 +17,6 @@ export const ClaimNEST = () => {
   const {
     data: getTokenData,
     write: getToken,
-    status: getTokenStatus,
-    reset: resetGetToken,
   } = useContractWrite(buyPrepareConfig)
   const {status: waitBuyStatus} = useWaitForTransaction({
     hash: getTokenData?.hash,
